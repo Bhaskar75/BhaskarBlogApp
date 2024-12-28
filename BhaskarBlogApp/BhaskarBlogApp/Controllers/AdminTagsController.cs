@@ -62,10 +62,10 @@ namespace BhaskarBlogApp.Controllers
             _bloggieDbContext.Tags.Add(tag);
 
             //The SaveChanges method commits the changes to the database:
-        
+
             _bloggieDbContext.SaveChanges();  //Without this line anything cant be saved into the database
-            List();
-            return View("List");
+
+            return RedirectToAction("List");
 
             //The method takes user input encapsulated in the AddTagRequest object.
             //Maps it to a Tag domain model object.
@@ -74,11 +74,86 @@ namespace BhaskarBlogApp.Controllers
             //Finally, it renders the "Add" view to the user.
         }
         [HttpGet]
+        [ActionName("List")]
         public IActionResult List()
         {
             //use DbContext to read the tags
             var tags = _bloggieDbContext.Tags.ToList();
             return View(tags);
         }
+
+        [HttpGet]
+        [ActionName("Edit")]
+        public IActionResult Edit(Guid id)
+        {
+            //1st method
+            //var tag = _bloggieDbContext.Tags.Find(id);
+
+            //2nd method
+            var tag = _bloggieDbContext.Tags.FirstOrDefault(t => t.Id == id);
+
+            if (tag != null)
+            {
+                var editTagRequest = new EditTagRequest
+                {
+                    Id = tag.Id,
+                    Name = tag.Name,
+                    DisplayName = tag.DisplayName,
+                };
+                return View(editTagRequest); //returns the value 
+            }
+
+            return View(null);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(EditTagRequest editTagRequest)
+        {
+            var tag = new Tag
+            {
+                Id = editTagRequest.Id,
+                Name = editTagRequest.Name,
+                DisplayName = editTagRequest.DisplayName,
+            };
+
+            var existingTag = _bloggieDbContext.Tags.Find(tag.Id);
+
+            if (existingTag != null)
+            {
+                existingTag.Name = tag.Name;
+                existingTag.DisplayName = tag.DisplayName;
+
+                //save changes
+                _bloggieDbContext.SaveChanges();
+
+                //show success notification
+                return RedirectToAction("List", new { id = editTagRequest.Id });
+            }
+
+            //show error notification
+            return RedirectToAction("Edit", new { id = editTagRequest.Id });
+
+        }
+        [HttpPost]
+        public IActionResult Delete(EditTagRequest editTagRequest)
+        {
+           
+            var existingTag = _bloggieDbContext.Tags.Find(editTagRequest.Id);
+
+            if (existingTag != null)
+            {
+                _bloggieDbContext.Tags.Remove(existingTag);
+                //save changes
+                _bloggieDbContext.SaveChanges();
+
+                //show success notification
+                return RedirectToAction("List");
+            }
+
+            //show error notification
+            return RedirectToAction("Edit", new { id = editTagRequest.Id });
+
+        }
+        
     }
 }
