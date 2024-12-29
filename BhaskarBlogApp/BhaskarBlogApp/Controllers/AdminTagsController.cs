@@ -10,16 +10,26 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System;
+using BhaskarBlogApp.Repositories;
 
 namespace BhaskarBlogApp.Controllers
 {
     public class AdminTagsController : Controller
     {
-        private BloggieDbContext _bloggieDbContext;
+        private readonly ITagRepository _tagRepository;
 
-        public AdminTagsController(BloggieDbContext bloggieDbContext)
+        //private BloggieDbContext _bloggieDbContext;
+
+        //public AdminTagsController(BloggieDbContext bloggieDbContext)
+        //{
+        //    _bloggieDbContext = bloggieDbContext;
+        //}
+
+        //as now we will be using repository we will be injecting ITagRepository
+
+        public AdminTagsController(ITagRepository tagRepository)
         {
-            _bloggieDbContext = bloggieDbContext;
+            _tagRepository = tagRepository;
         }
 
         [HttpGet]
@@ -40,7 +50,7 @@ namespace BhaskarBlogApp.Controllers
 
         [HttpPost]
         [ActionName("Add")]
-        public IActionResult Add(AddTagRequest addTagRequest)
+        public async Task<IActionResult> Add(AddTagRequest addTagRequest)
         {
             //var name = Request.Form["name"];
             //var displayName = Request.Form["displayName"];
@@ -59,12 +69,17 @@ namespace BhaskarBlogApp.Controllers
             //The newly created tag object is added to the Tags DbSet of the _bloggieDbContext
             //The Tags DbSet represents a table in the database, and the Add method queues the tag object to be inserted into the database.
 
-            _bloggieDbContext.Tags.Add(tag);
+            //_bloggieDbContext.Tags.Add(tag);
+            //await _bloggieDbContext.Tags.AddAsync(tag);
 
-            //The SaveChanges method commits the changes to the database:
+            ////The SaveChanges method commits the changes to the database:
 
-            _bloggieDbContext.SaveChanges();  //Without this line anything cant be saved into the database
+            ////_bloggieDbContext.SaveChanges();  //Without this line anything cant be saved into the database
+            //await _bloggieDbContext.SaveChangesAsync();  
 
+            //Now we are using repository , so every db called will not be done here in controller it will done in repository
+
+            await _tagRepository.AddAsync(tag);
             return RedirectToAction("List");
 
             //The method takes user input encapsulated in the AddTagRequest object.
@@ -75,22 +90,23 @@ namespace BhaskarBlogApp.Controllers
         }
         [HttpGet]
         [ActionName("List")]
-        public IActionResult List()
+        public async Task<IActionResult> List()
         {
             //use DbContext to read the tags
-            var tags = _bloggieDbContext.Tags.ToList();
+            var tags = await _tagRepository.GetAllAsync();
             return View(tags);
         }
 
         [HttpGet]
         [ActionName("Edit")]
-        public IActionResult Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid id)
         {
             //1st method
             //var tag = _bloggieDbContext.Tags.Find(id);
 
             //2nd method
-            var tag = _bloggieDbContext.Tags.FirstOrDefault(t => t.Id == id);
+            //var tag = await _bloggieDbContext.Tags.FirstOrDefaultAsync(t => t.Id == id);
+            var tag = await _tagRepository.GetAsync(id);
 
             if (tag != null)
             {
@@ -107,7 +123,7 @@ namespace BhaskarBlogApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(EditTagRequest editTagRequest)
+        public async Task<IActionResult> Edit(EditTagRequest editTagRequest)
         {
             var tag = new Tag
             {
@@ -116,40 +132,54 @@ namespace BhaskarBlogApp.Controllers
                 DisplayName = editTagRequest.DisplayName,
             };
 
-            var existingTag = _bloggieDbContext.Tags.Find(tag.Id);
+            //var existingTag = await _bloggieDbContext.Tags.FindAsync(tag.Id);
 
-            if (existingTag != null)
+            //if (existingTag != null)
+            //{
+            //    existingTag.Name = tag.Name;
+            //    existingTag.DisplayName = tag.DisplayName;
+
+            //    //save changes
+            //    await _bloggieDbContext.SaveChangesAsync();
+
+            //    //show success notification
+            //    return RedirectToAction("List", new { id = editTagRequest.Id });
+            //}
+
+            var updatedTag = await _tagRepository.UpdateAsync(tag);
+            if (updatedTag != null)
             {
-                existingTag.Name = tag.Name;
-                existingTag.DisplayName = tag.DisplayName;
-
-                //save changes
-                _bloggieDbContext.SaveChanges();
-
-                //show success notification
+                //Show success notification
                 return RedirectToAction("List", new { id = editTagRequest.Id });
             }
-
             //show error notification
             return RedirectToAction("Edit", new { id = editTagRequest.Id });
 
         }
         [HttpPost]
-        public IActionResult Delete(EditTagRequest editTagRequest)
+        public async Task<IActionResult> Delete(EditTagRequest editTagRequest)
         {
            
-            var existingTag = _bloggieDbContext.Tags.Find(editTagRequest.Id);
+            //var existingTag = await _bloggieDbContext.Tags.FindAsync(editTagRequest.Id);
 
-            if (existingTag != null)
+            //if (existingTag != null)
+            //{
+            //    _bloggieDbContext.Tags.Remove(existingTag);
+            //    //save changes
+            //    await _bloggieDbContext.SaveChangesAsync();
+
+            //    //show success notification
+            //    return RedirectToAction("List");
+            //}
+
+
+            var deletedTag = await _tagRepository.DeleteAsync(editTagRequest.Id);
+
+            if (deletedTag != null)
             {
-                _bloggieDbContext.Tags.Remove(existingTag);
-                //save changes
-                _bloggieDbContext.SaveChanges();
-
                 //show success notification
                 return RedirectToAction("List");
             }
-
             //show error notification
             return RedirectToAction("Edit", new { id = editTagRequest.Id });
 
