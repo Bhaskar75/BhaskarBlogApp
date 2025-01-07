@@ -2,8 +2,9 @@
 
 namespace BhaskarBlogApp.Models.ViewModels
 {
-    public class AddBlogPostRequest
+    public class EditBlogPostRequest
     {
+        public Guid Id { get; set; }
         public string Heading { get; set; }
         public string pageTitle { get; set; }
         public string Content { get; set; }
@@ -19,7 +20,5 @@ namespace BhaskarBlogApp.Models.ViewModels
 
         //Collect tag
         public string[] SelectedTags { get; set; } = Array.Empty<string>();
-
-
     }
 }
