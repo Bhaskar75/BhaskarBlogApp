@@ -109,5 +109,65 @@ namespace BhaskarBlogApp.Controllers
 
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Edit(EditBlogPostRequest editBlogPostRequest)
+        {
+            //map view model back to domain model
+
+            var blogpostDomainModel = new BlogPost
+            {
+                Id = editBlogPostRequest.Id,
+                Heading = editBlogPostRequest.Heading,
+                pageTitle = editBlogPostRequest.pageTitle,
+                Content = editBlogPostRequest.Content,
+                Author = editBlogPostRequest.Author,
+                ShortDescription = editBlogPostRequest.ShortDescription,
+                FeaturedImageUrl = editBlogPostRequest.FeaturedImageUrl,
+                PublishedDate = editBlogPostRequest.PublishedDate,
+                UrlHandle = editBlogPostRequest.UrlHandle,
+                Visible = editBlogPostRequest.Visible,
+            };
+
+            //Map tags into domain model
+            var selectedTags = new List<Tag>();
+            foreach (var selectedTag in editBlogPostRequest.SelectedTags)
+            {
+                if (Guid.TryParse(selectedTag, out var tag))
+                {
+                    var foundTag = await tagRepository.GetAsync(tag);
+                    if (foundTag != null)
+                    {
+                        selectedTags.Add(foundTag);
+                    }
+                }
+            }
+
+            blogpostDomainModel.Tags = selectedTags;
+            //Submit information to repository to update
+
+            var updatedBlog = await blogPostRepository.UpdateAsync(blogpostDomainModel);
+
+            if (updatedBlog != null)
+            {
+                //Show Success notification
+                return RedirectToAction("Edit");
+            }
+            //redirect to GET
+            return RedirectToAction("Edit");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(EditBlogPostRequest editBlogPostRequest)
+        {
+            //Task to repositoryto delete this blog post and tags
+            var deletedBlogPost = await blogPostRepository.DeleteAsync(editBlogPostRequest.Id);
+            if (deletedBlogPost != null)
+            {
+                //Show success notification
+                return RedirectToAction("List");
+            }
+            //Show error notification
+            return RedirectToAction("Edit", new { id = editBlogPostRequest.Id });
+        }
     }
 }
