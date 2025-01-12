@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Net;
+using BhaskarBlogApp.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BhaskarBlogApp.Controllers
@@ -7,17 +9,24 @@ namespace BhaskarBlogApp.Controllers
     [ApiController]
     public class ImagesController : ControllerBase
     {
-        [HttpGet]
-        public IActionResult Index()
+        private readonly IImageRepository imageRepository;
+
+        public ImagesController(IImageRepository imageRepository)
         {
-            return Ok("This is the GET Images API call");
+            this.imageRepository = imageRepository;
         }
 
         [HttpPost]
         public async Task<IActionResult> UploadAsync(IFormFile file)
         {
             //call a repository
-            return Ok();
+            var imageURL = await imageRepository.UploadAsync(file);
+            if (imageURL == null)
+            {
+                return Problem("Something went wrong!",null,(int)HttpStatusCode.InternalServerError);
+            }
+
+            return new JsonResult(new {link=imageURL});
         }
     }
 }
