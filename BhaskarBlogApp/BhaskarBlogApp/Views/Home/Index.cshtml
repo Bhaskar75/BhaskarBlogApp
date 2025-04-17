@@ -1,4 +1,4 @@
-﻿@model List<BhaskarBlogApp.Models.Domain.BlogPost>
+﻿ @model BhaskarBlogApp.Models.ViewModels.HomeViewModel
 @{
 	ViewData["Title"] = "Home Page";
 }
@@ -11,7 +11,7 @@
 			</h1>
 			<p class="lead">
 				Bloggie is the home to coding blogs covering a vast range of topics
-				like HTML,CSS,Javascript,Asp .Net, C#, Angular etc.
+				like HTML,CSS,Javascript,Asp.Net, C#, Angular etc.
 				Want to read the latest dev articles? Join the bloggie app and get
 				weekly blogs in your email.
 			</p>
@@ -19,8 +19,24 @@
 		</div>
 		<div class="col-12 col-lg-6">
 			<img src="https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-				 alt="Bloggie - The Dev Blog"
-				 class="d-block mx-lg-autog img-fluid" width="500" />
+			alt="Bloggie - The Dev Blog"
+			class="d-block mx-lg-autog img-fluid" width="500" />
+		</div>
+	</div>
+</div>
+
+<div class="container">
+	<div class="row justify-content-center">
+		<div class="col-6 d-flex">
+			@if(Model != null && Model.Tags.Any())
+			{
+				foreach(var tag in Model.Tags)
+				{
+					<span class="badge bg-dark me-1">
+						@tag.Name
+					</span>
+				}
+			}
 		</div>
 	</div>
 </div>
@@ -28,9 +44,9 @@
 <div class="container">
 	<div class="row justify-content-center">
 		<div class="col-6">
-			@if (Model != null && Model.Any())
+			@if (Model != null && Model.BlogPosts.Any())
 			{
-				foreach (var blogPost in Model)
+				foreach (var blogPost in Model.BlogPosts)
 				{
 					<div class="mb-5 bg-light box-shadow p-5">
 						<img src="@blogPost.FeaturedImageUrl" alt="@blogPost.Heading" class="mb-2 d-block img-fluid" />
@@ -47,7 +63,11 @@
 							}
 						</p>
 						<p class="mb-4">@blogPost.ShortDescription</p>
-						<a class="btn btn-dark" href="#">Read More</a>
+						<a class="btn btn-dark"
+						   asp-area=""
+						   asp-controller="Blogs"
+						   asp-action="Index"
+						   asp-route-urlhandle="@blogPost.UrlHandle">Read More</a>
 					</div>
 				}
 			}
