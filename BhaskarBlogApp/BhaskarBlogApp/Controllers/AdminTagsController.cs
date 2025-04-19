@@ -11,9 +11,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System;
 using BhaskarBlogApp.Repositories;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BhaskarBlogApp.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminTagsController : Controller
     {
         private readonly ITagRepository _tagRepository;
@@ -184,6 +186,6 @@ namespace BhaskarBlogApp.Controllers
             return RedirectToAction("Edit", new { id = editTagRequest.Id });
 
         }
-        
+
     }
 }

@@ -1,11 +1,13 @@
 ﻿using BhaskarBlogApp.Models.Domain;
 using BhaskarBlogApp.Models.ViewModels;
 using BhaskarBlogApp.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BhaskarBlogApp.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminBlogPostsController : Controller
     {
         private readonly ITagRepository tagRepository;
