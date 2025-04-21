@@ -11,5 +11,6 @@ namespace BhaskarBlogApp.Data
 
         public DbSet<BlogPost> Blogposts { get; set; }//after running migration this will create tables in db of name blogposts, we use Dbset for that
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<BlogPostLike> BlogPostLike { get; set; }
     }
 }

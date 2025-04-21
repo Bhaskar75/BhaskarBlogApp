@@ -17,5 +17,7 @@
         //as blogs can have multiple tags and tags can have multiple blogs
         public ICollection<Tag> Tags { get; set; }
 
+        public ICollection<BlogPostLike> Likes { get; set; }
+
     }
 }
