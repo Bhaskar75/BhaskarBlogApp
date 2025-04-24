@@ -12,12 +12,10 @@
         public  DateTime PublishedDate { get; set; }
         public string Author { get; set; }
         public bool Visible { get; set; }
-
         //this below Icollection represents many to many relationship
         //as blogs can have multiple tags and tags can have multiple blogs
         public ICollection<Tag> Tags { get; set; }
-
         public ICollection<BlogPostLike> Likes { get; set; }
-
+        public ICollection<BlogPostComment> Comments { get; set; }
     }
 }
