@@ -99,24 +99,44 @@ namespace BhaskarBlogApp.Controllers
 
         private void ValidateAddtagRequest(AddTagRequest request)
         {
-            if(request.Name != null && request.DisplayName != null)
+            if (request.Name != null && request.DisplayName != null)
             {
-                if(request.Name == request.DisplayName)
+                if (request.Name == request.DisplayName)
                 {
-                    ModelState.AddModelError("DisplayName","Name cannot be same as Display Name");
+                    ModelState.AddModelError("DisplayName", "Name cannot be same as Display Name");
                 }
             }
         }
 
         [HttpGet]
         [ActionName("List")]
-        public async Task<IActionResult> List(string? searchQuery,string? sortBy,string? sortDirection)
+        public async Task<IActionResult> List(string? searchQuery,
+            string? sortBy,
+            string? sortDirection,
+            int pageSize = 3,
+            int pageNumber = 1)
         {
+            var totalRecords = await _tagRepository.CountAsync();
+            var totalPages = Math.Ceiling((decimal)totalRecords / pageSize);
+
+            if (pageNumber > totalPages)
+            {
+                pageNumber--;
+            }
+
+            if (pageNumber < 1)
+            {
+                pageNumber++;
+            }
+
+            ViewBag.TotalPages = totalPages;
             ViewBag.searchQuery = searchQuery;
             ViewBag.SortBy = sortBy;
             ViewBag.SortDirection = sortDirection;
+            ViewBag.PageSize = pageSize;
+            ViewBag.PageNumber = pageNumber;
             //use DbContext to read the tags
-            var tags = await _tagRepository.GetAllAsync(searchQuery, sortBy, sortDirection);
+            var tags = await _tagRepository.GetAllAsync(searchQuery, sortBy, sortDirection, pageNumber, pageSize);
             return View(tags);
         }
 

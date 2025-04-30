@@ -23,6 +23,11 @@ namespace BhaskarBlogApp.Repositories
             return tag;
         }
 
+        public async Task<int> CountAsync()
+        {
+            return await _bloggieDbContext.Tags.CountAsync();
+        }
+
         public async Task<Tag?> DeleteAsync(Guid id)
         {
             var eT = await _bloggieDbContext.Tags.FindAsync(id);
@@ -35,7 +40,8 @@ namespace BhaskarBlogApp.Repositories
             return null;
         }
 
-        public async Task<IEnumerable<Tag>> GetAllAsync(string? searchQuery, string? sortBy, string? sortDirection)
+        public async Task<IEnumerable<Tag>> GetAllAsync(string? searchQuery, string? sortBy, string? sortDirection, int pageNumber = 1,
+                                           int pageSize = 100)
         {
             //return await _bloggieDbContext.Tags.ToListAsync();
             var query = _bloggieDbContext.Tags.AsQueryable();
@@ -50,7 +56,7 @@ namespace BhaskarBlogApp.Repositories
             if (!string.IsNullOrWhiteSpace(sortBy))
             {
                 var isDesc = string.Equals(sortDirection, "Desc", StringComparison.OrdinalIgnoreCase);
-                if(string.Equals(sortBy,"Name",StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(sortBy, "Name", StringComparison.OrdinalIgnoreCase))
                 {
                     query = isDesc ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
                 }
@@ -61,6 +67,9 @@ namespace BhaskarBlogApp.Repositories
             }
 
             //Pagination
+            //Skip 0 take 5-> Page 1 of 5 results
+            var skipResults = (pageNumber - 1) * pageSize;
+            query = query.Skip(skipResults).Take(pageSize);
 
             return await query.ToListAsync();
         }

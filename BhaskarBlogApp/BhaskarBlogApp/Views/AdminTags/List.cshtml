@@ -1,5 +1,10 @@
 ﻿@model List<BhaskarBlogApp.Models.Domain.Tag>
 
+@{
+	int nextPage = Convert.ToInt32(ViewBag.PageNumber) + 1;
+	int previousPage = Convert.ToInt32(ViewBag.PageNumber) - 1;
+}
+
 <div class="bg-primary bg-opacity-75 py-4 mb-4 text-white shadow-sm">
 	<div class="container">
 		<h1 class="display-5 fw-bold">📝 All Tags (Admin Panel)</h1>
@@ -100,6 +105,43 @@
 				</tbody>
 			</table>
 		</div>
+
+		<nav aria-label="Page navigation">
+			<ul class="pagination">
+				<li class="page-item">
+					<a class="page-link"
+					   asp-controller="AdminTags"
+					   asp-action="List"
+					   asp-route-pageNumber="@previousPage"
+					   asp-route-pageSize="@ViewBag.PageSize"
+					   asp-route-sortBy="@ViewBag.SortBy"
+					   asp-route-sortDirection="@ViewBag.SortDirection">Previous</a>
+				</li>
+
+				@for (int i = 1; i <= ViewBag.TotalPages; i++)
+				{
+					<li class="page-item">
+						<a class="page-link"
+						   asp-controller="AdminTags"
+						   asp-action="List"
+						   asp-route-pageNumber="@i"
+						   asp-route-pageSize="@ViewBag.PageSize"
+						   asp-route-sortBy="@ViewBag.SortBy"
+						   asp-route-sortDirection="@ViewBag.SortDirection">@i</a>
+					</li>
+				}
+
+				<li class="page-item">
+					<a class="page-link"
+					   asp-controller="AdminTags"
+					   asp-action="List"
+					   asp-route-pageNumber="@nextPage"
+					   asp-route-pageSize="@ViewBag.PageSize"
+					   asp-route-sortBy="@ViewBag.SortBy"
+					   asp-route-sortDirection="@ViewBag.SortDirection">Next</a>
+				</li>
+			</ul>
+		</nav>
 	}
 	else
 	{
