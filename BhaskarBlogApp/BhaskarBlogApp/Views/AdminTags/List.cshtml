@@ -1,43 +1,110 @@
 ﻿@model List<BhaskarBlogApp.Models.Domain.Tag>
-@{
-}
 
-<div class="bg-secondary bg-opacity-10 py-2">
+<div class="bg-primary bg-opacity-75 py-4 mb-4 text-white shadow-sm">
 	<div class="container">
-		<h1>Show All Tags - Admin Functionality</h1>
+		<h1 class="display-5 fw-bold">📝 All Tags (Admin Panel)</h1>
+		<p class="lead">Manage your blog tags easily from here.</p>
 	</div>
 </div>
 
-<div class="container py-5">
+<!-- Search Bar -->
+<form method="get" asp-controller="AdminTags" asp-action="List" asp-route-searchQuery="">
+	<div class="container mb-4">
+		<div class="row justify-content-center">
+			<div class="col-12 col-md-6 d-flex">
+				<form class="input-group shadow-sm">
+					<input type="text" class="form-control" name="searchQuery" placeholder="Search by tag name..." value="@ViewBag.searchQuery" />
+					<button type="submit" class="btn btn-warning">Search</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</form>
+
+<div class="container mt-3">
 	@if (Model != null && Model.Any())
 	{
-		<table class="table">
-			<thead>
-				<tr>
-					<th>Id</th>
-					<th>Name</th>
-					<th>DisplayName</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				@foreach (var tag in Model)
-				{
+		<div class="table-responsive shadow-sm rounded">
+			<table class="table table-hover align-middle">
+				<thead class="table-dark">
 					<tr>
-						<td>@tag.Id</td>
-						<td>@tag.Name</td>
-						<td>@tag.DisplayName</td>
-						<td class="d-flex">
-							<a asp-area="" asp-controller="AdminTags" asp-action="Edit"
-							asp-route-id="@tag.Id" >Edit</a>
-						</td>
+						<th scope="col">#ID</th>
+						<th scope="col">
+							Name
+							<span>
+								<span>
+									<a class="btn btn-light"
+									   asp-controller="AdminTags"
+									   asp-action="List"
+									   asp-route-sortBy="Name"
+									   asp-route-sortDirection="Asc"
+									   asp-route-searchQuery="@ViewBag.searchQuery">
+										<i class="bi bi-arrow-up"></i>
+									</a>
+								</span>
+								<span>
+									<a class="btn btn-light"
+									   asp-controller="AdminTags"
+									   asp-action="List"
+									   asp-route-sortBy="Name"
+									   asp-route-sortDirection="Desc"
+									   asp-route-searchQuery="@ViewBag.searchQuery">
+										<i class="bi bi-arrow-down"></i>
+									</a>
+								</span>
+							</span>
+						</th>
+						<th scope="col">
+							Display Name
+							<span>
+								<span>
+									<a class="btn btn-light"
+									   asp-controller="AdminTags"
+									   asp-action="List"
+									   asp-route-sortBy="DisplayName"
+									   asp-route-sortDirection="Asc"
+									   asp-route-searchQuery="@ViewBag.searchQuery">
+										<i class="bi bi-arrow-up"></i>
+									</a>
+								</span>
+								<span>
+									<a class="btn btn-light"
+									   asp-controller="AdminTags"
+									   asp-action="List"
+									   asp-route-sortBy="DisplayName"
+									   asp-route-sortDirection="Desc"
+									   asp-route-searchQuery="@ViewBag.searchQuery">
+										<i class="bi bi-arrow-down"></i>
+									</a>
+								</span>
+							</span>
+						</th>
+						<th scope="col" class="text-end">Actions</th>
 					</tr>
-				}
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+					@foreach (var tag in Model)
+					{
+						<tr>
+							<td>@tag.Id</td>
+							<td>@tag.Name</td>
+							<td>@tag.DisplayName</td>
+							<td class="text-end">
+								<a class="btn btn-outline-primary btn-sm"
+								   asp-area="" asp-controller="AdminTags" asp-action="Edit" asp-route-id="@tag.Id">
+									✏️ Edit
+								</a>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
 	}
 	else
 	{
-		<p>No tags were found !</p>
+		<div class="alert alert-warning text-center" role="alert">
+			🚫 No tags were found!
+		</div>
 	}
 </div>

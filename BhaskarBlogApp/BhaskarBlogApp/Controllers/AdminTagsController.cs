@@ -62,6 +62,12 @@ namespace BhaskarBlogApp.Controllers
             //Mapping the add tag request to tag domain model
             //A new instance of the Tag domain model is created:
             //This maps the incoming request data(Name and DisplayName) to the corresponding fields in the Tag domain model. The domain model is typically the structure used to interact with the database.
+            ValidateAddtagRequest(addTagRequest);
+            if (ModelState.IsValid == false)
+            {
+                return View();
+            }
+
             var tag = new Tag
             {
                 Name = addTagRequest.Name,
@@ -90,12 +96,27 @@ namespace BhaskarBlogApp.Controllers
             //Saves the changes to make the operation permanent.
             //Finally, it renders the "Add" view to the user.
         }
+
+        private void ValidateAddtagRequest(AddTagRequest request)
+        {
+            if(request.Name != null && request.DisplayName != null)
+            {
+                if(request.Name == request.DisplayName)
+                {
+                    ModelState.AddModelError("DisplayName","Name cannot be same as Display Name");
+                }
+            }
+        }
+
         [HttpGet]
         [ActionName("List")]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List(string? searchQuery,string? sortBy,string? sortDirection)
         {
+            ViewBag.searchQuery = searchQuery;
+            ViewBag.SortBy = sortBy;
+            ViewBag.SortDirection = sortDirection;
             //use DbContext to read the tags
-            var tags = await _tagRepository.GetAllAsync();
+            var tags = await _tagRepository.GetAllAsync(searchQuery, sortBy, sortDirection);
             return View(tags);
         }
 
@@ -161,7 +182,7 @@ namespace BhaskarBlogApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(EditTagRequest editTagRequest)
         {
-           
+
             //var existingTag = await _bloggieDbContext.Tags.FindAsync(editTagRequest.Id);
 
             //if (existingTag != null)
